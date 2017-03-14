@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hexo">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-js中令人匪夷所思的this" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/03/14/js中令人匪夷所思的this/" class="article-date">
+  <time datetime="2017-03-14T09:16:59.000Z" itemprop="datePublished">2017-03-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/14/js中令人匪夷所思的this/">js中令人匪夷所思的this</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>为何说是匪夷所思？因为我以前是做java的，this在java中含义是明确且具体的，即指向当前对象，在编译期绑定;而JavaScript 中this 在运行期进行绑定的，这是JavaScript中this关键字具备多重含义的本质原因。<br>JavaScript 中，普通的函数调用方式有三种：直接调用、方法调用和 new 调用。除此之外，还有一些特殊的调用方式，比如通过bind() 将函数绑定到对象之后再进行调用、通过 call()、apply() 进行调用等。而 es6 引入了箭头函数之后，箭头函数调用时，其 this 指向又有所不同。下面就来分析这些情况下的 this 指向。</p>
+<p>##直接调用<br>直接调用，就是通过 函数名(…) 这种方式调用。这时候，函数内部的 this 指向全局对象，在浏览器中全局对象是 window，在 NodeJs 中全局对象是 global。</p>
+<p>来看一个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 简单兼容浏览器和 NodeJs 的全局对象</span></div><div class="line"><span class="keyword">const</span> _global = <span class="keyword">typeof</span> <span class="built_in">window</span> === <span class="string">"undefined"</span> ? global : <span class="built_in">window</span>;</div><div class="line"> </div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span> === _global);    <span class="comment">// true</span></div><div class="line">&#125;</div><div class="line"> </div><div class="line">test();    <span class="comment">// 直接调用</span></div></pre></td></tr></table></figure>
+<p>这里需要注意的一点是，直接调用并不是指在全局作用域下进行调用，在任何作用域下，直接通过 函数名(…) 来对函数进行调用的方式，都称为直接调用。比如下面这个例子也是直接调用</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>)</span>&#123;<span class="built_in">console</span>.info(z)&#125;</div><div class="line"><span class="keyword">var</span> z=<span class="number">10</span>;</div><div class="line">(<span class="function"><span class="keyword">function</span>(<span class="params">a</span>)</span>&#123;</div><div class="line"><span class="keyword">var</span> z=<span class="number">20</span>; a();</div><div class="line">&#125;)(foo);<span class="comment">//10</span></div></pre></td></tr></table></figure>
+<p>##bind() 对直接调用的影响</p>
+<p>还有一点需要注意的是 bind() 的影响。Function.prototype.bind() 的作用是将当前函数与指定的对象绑定，并返回一个新函数，这个新函数无论以什么样的方式调用，其 this 始终指向绑定的对象。还是来看例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> obj = &#123;&#125;;</div><div class="line"> </div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span> === obj);</div><div class="line">&#125;</div><div class="line"> </div><div class="line"><span class="keyword">const</span> testObj = test.bind(obj);</div><div class="line">test();     <span class="comment">// false</span></div><div class="line">testObj();  <span class="comment">// true</span></div></pre></td></tr></table></figure>
+<p>##call 和 apply 对 this 的影响<br>它们的第一个参数都是指定函数运行时其中的 this 指向。<br>不过使用 apply 和 call 的时候仍然需要注意，如果目录函数本身是一个绑定了 this 对象的函数，那 apply 和 call 不会像预期那样执行，比如</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> obj = &#123;&#125;;</div><div class="line"> </div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span> === obj);</div><div class="line">&#125;</div><div class="line"> </div><div class="line"><span class="comment">// 绑定到一个新对象，而不是 obj</span></div><div class="line"><span class="keyword">const</span> testObj = test.bind(&#123;&#125;);</div><div class="line">test.apply(obj);    <span class="comment">// true</span></div><div class="line"> </div><div class="line"><span class="comment">// 期望 this 是 obj，即输出 true</span></div><div class="line"><span class="comment">// 但是因为 testObj 绑定了不是 obj 的对象，所以会输出 false</span></div><div class="line">testObj.apply(obj); <span class="comment">// false</span></div></pre></td></tr></table></figure>
+<p>由此可见，bind() 对函数的影响是深远的，慎用！</p>
+<p>##new调用函数<br>this指向新创建的对象</p>
+<p>##方法调用<br>指通过对象来调用方法函数，即xx.(…)。<br>例如，</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> obj = &#123;</div><div class="line">    <span class="comment">// 第一种方式，定义对象的时候定义其方法</span></div><div class="line">    test() &#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="keyword">this</span> === obj);</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"> </div><div class="line"><span class="comment">// 第二种方式，对象定义好之后为其附加一个方法(函数表达式)</span></div><div class="line">obj.test2 = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span> === obj);</div><div class="line">&#125;;</div><div class="line"> </div><div class="line"><span class="comment">// 第三种方式和第二种方式原理相同</span></div><div class="line"><span class="comment">// 是对象定义好之后为其附加一个方法(函数定义)</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">t</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span> === obj);</div><div class="line">&#125;</div><div class="line">obj.test3 = t;</div><div class="line"> </div><div class="line"><span class="comment">// 这也是为对象附加一个方法函数</span></div><div class="line"><span class="comment">// 但是这个函数绑定了一个不是 obj 的其它对象</span></div><div class="line">obj.test4 = (<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span> === obj);</div><div class="line">&#125;).bind(&#123;&#125;);</div><div class="line"> </div><div class="line">obj.test();     <span class="comment">// true</span></div><div class="line">obj.test2();    <span class="comment">// true</span></div><div class="line">obj.test3();    <span class="comment">// true</span></div><div class="line"> </div><div class="line"><span class="comment">// 受 bind() 影响，test4 中的 this 指向不是 obj</span></div><div class="line">obj.test4();    <span class="comment">// false</span></div></pre></td></tr></table></figure>
+<p>这里需要注意的是，后三种方式都是预定定义函数，再将其附加给 obj 对象作为其方法。再次强调，函数内部的 this 指向与定义无关，受调用方式的影响。</p>
+<p>语法细微变化都会意外改变this，下面再看一个例子<br>var name = ‘the window’;<br>var obj = {<br>name:’my obj’,<br>getName:function(){<br>    return this.name;<br>    }<br>};<br>obj.getName();//‘my obj’<br>(obj.getName)();//‘my obj’<br>当你需要把这个对象的方法赋值给另一个对象的时候，比如<br>var ss = {name:’ssName’};<br>ss.getName = obj.getName;<br>ss.getName();//‘ssName’<br>换种语法执行：<br>(ss.getName =  obj.getName)();//‘the window’</p>
+<p>##箭头函数中的 this<br>箭头函数没有自己的 this 绑定，this指向的其实是直接包含它的那个函数或函数表达式中的 this。比如</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> obj = &#123;</div><div class="line">    test() &#123;</div><div class="line">        <span class="keyword">const</span> arrow = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">            <span class="comment">// 这里的 this 是 test() 中的 this，</span></div><div class="line">            <span class="comment">// 由 test() 的调用方式决定</span></div><div class="line">            <span class="built_in">console</span>.log(<span class="keyword">this</span> === obj);</div><div class="line">        &#125;;</div><div class="line">        arrow();</div><div class="line">    &#125;,</div><div class="line"> </div><div class="line">    getArrow() &#123;</div><div class="line">        <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">            <span class="comment">// 这里的 this 是 getArrow() 中的 this，</span></div><div class="line">            <span class="comment">// 由 getArrow() 的调用方式决定</span></div><div class="line">            <span class="built_in">console</span>.log(<span class="keyword">this</span> === obj);</div><div class="line">        &#125;;</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"> </div><div class="line">obj.test();     <span class="comment">// true</span></div><div class="line"> </div><div class="line"><span class="keyword">const</span> arrow = obj.getArrow();</div><div class="line">arrow();        <span class="comment">// true</span></div></pre></td></tr></table></figure>
+<p>示例中的两个 this 都是由箭头函数的直接外层函数(方法)决定的，而方法函数中的 this 是由其调用方式决定的。上例的调用方式都是方法调用，所以 this 都指向方法调用的对象，即 obj。</p>
+<p>箭头函数让大家在使用闭包的时候不需要太纠结 this，不需要通过像 _this 这样的局部变量来临时引用 this 给闭包函数使用。来看一段 Babel 对箭头函数的转译可能能加深理解：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">// ES6</span></div><div class="line"><span class="keyword">const</span> obj = &#123;</div><div class="line">    getArrow() &#123;</div><div class="line">        <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">            <span class="built_in">console</span>.log(<span class="keyword">this</span> === obj);</div><div class="line">        &#125;;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// ES5，由 Babel 转译</span></div><div class="line"><span class="keyword">var</span> obj = &#123;</div><div class="line">    <span class="attr">getArrow</span>: <span class="function"><span class="keyword">function</span> <span class="title">getArrow</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> _this = <span class="keyword">this</span>;</div><div class="line">        <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">            <span class="built_in">console</span>.log(_this === obj);</div><div class="line">        &#125;;</div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>另外需要注意的是，箭头函数不能用 new 调用，不能 bind() 到某个对象(虽然 bind() 方法调用没问题，但是不会产生预期效果)。不管在什么情况下使用箭头函数，它本身是没有绑定 this 的，它用的是直接外层函数(即包含它的最近的一层函数或函数表达式)绑定的 this。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/03/14/js中令人匪夷所思的this/" data-id="cj09bteas0000ujls8kgto6wn" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript-this/">javascript this</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/03/14/hello-world/" class="article-date">
+  <time datetime="2017-03-14T09:14:04.000Z" itemprop="datePublished">2017-03-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/14/hello-world/">Hello World</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/03/14/hello-world/" data-id="cj09bteaz0001ujls6l1qnerf" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/javascript-this/">javascript this</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/javascript-this/" style="font-size: 10px;">javascript this</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/03/14/js中令人匪夷所思的this/">js中令人匪夷所思的this</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/14/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
