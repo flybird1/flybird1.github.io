@@ -4,3 +4,5 @@ _site
 node_modules/
 public/
 themes/
+.deploy_git/
+db.json
