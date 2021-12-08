@@ -27,10 +27,6 @@
         "description": "Type of changes",
         "options": [
           {
-            "label": "---",
-            "value": ""
-          },
-          {
             "label": "feat",
             "description": "A new feature"
           },
